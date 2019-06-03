@@ -2,11 +2,23 @@
  * Copyright (c) 2018 The xterm.js authors. All rights reserved.
  * @license MIT
  */
+
 import { CharData, IBufferLine, ICellData, IColorRGB, IAttributeData } from 'core/Types';
 import { stringFromCodePoint } from 'core/input/TextDecoder';
 import { DEFAULT_COLOR } from 'common/Types';
 
 export const DEFAULT_ATTR = (0 << 18) | (DEFAULT_COLOR << 9) | (256 << 0);
+
+// TODO: This is duplicated from renderer, should be removed after chardata workaround is fixed
+export const enum FLAGS {
+  BOLD = 1,
+  UNDERLINE = 2,
+  BLINK = 4,
+  INVERSE = 8,
+  INVISIBLE = 16,
+  DIM = 32,
+  ITALIC = 64
+}
 
 export const CHAR_DATA_ATTR_INDEX = 0;
 export const CHAR_DATA_CHAR_INDEX = 1;
@@ -345,8 +357,26 @@ export class BufferLine implements IBufferLine {
   public get(index: number): CharData {
     const content = this._data[index * CELL_SIZE + Cell.CONTENT];
     const cp = content & Content.CODEPOINT_MASK;
+
+    // TODO: Need to move WebGL over to the new system and remove this block
+    const cell = new CellData();
+    this.loadCell(index, cell);
+    const oldBg = cell.getBgColor() === -1 ? 256 : cell.getBgColor();
+    const oldFg = cell.getFgColor() === -1 ? 256 : cell.getFgColor();
+    const oldAttr =
+      (cell.isBold() ? FLAGS.BOLD : 0) |
+      (cell.isUnderline() ? FLAGS.UNDERLINE : 0) |
+      (cell.isBlink() ? FLAGS.BLINK : 0) |
+      (cell.isInverse() ? FLAGS.INVERSE : 0) |
+      (cell.isDim() ? FLAGS.DIM : 0) |
+      (cell.isItalic() ? FLAGS.ITALIC : 0);
+    const attrCompat =
+      oldBg |
+      (oldFg << 9) |
+      (oldAttr << 18);
+
     return [
-      this._data[index * CELL_SIZE + Cell.FG],
+      attrCompat,
       (content & Content.IS_COMBINED_MASK)
         ? this._combined[index]
         : (cp) ? stringFromCodePoint(cp) : '',

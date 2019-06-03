@@ -10,6 +10,7 @@ import { Terminal as TerminalCore } from '../Terminal';
 import * as Strings from '../Strings';
 import { IEvent } from 'common/EventEmitter2';
 import { AddonManager } from './AddonManager';
+import { WebglRendererAddon } from '../renderer/webgl/WebglRendererAddon';
 
 export class Terminal implements ITerminalApi {
   private _core: ITerminal;
@@ -31,6 +32,7 @@ export class Terminal implements ITerminalApi {
   public get onResize(): IEvent<{ cols: number, rows: number }> { return this._core.onResize; }
 
   public get element(): HTMLElement { return this._core.element; }
+  public get screenElement(): HTMLElement { return this._core.screenElement; }
   public get textarea(): HTMLTextAreaElement { return this._core.textarea; }
   public get rows(): number { return this._core.rows; }
   public get cols(): number { return this._core.cols; }
@@ -179,6 +181,12 @@ export class Terminal implements ITerminalApi {
   }
   public loadAddon(addon: ITerminalAddon): void {
     return this._addonManager.loadAddon(this, addon);
+  }
+  public setRenderer(renderer: any): void {
+    this._core.setRenderer(renderer);
+  }
+  public loadWebgl(preserveDrawingBuffer?: boolean): void {
+    this.loadAddon(new WebglRendererAddon(preserveDrawingBuffer));
   }
   public static get strings(): ILocalizableStrings {
     return Strings;

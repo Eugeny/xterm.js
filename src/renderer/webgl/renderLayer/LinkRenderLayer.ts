@@ -3,12 +3,11 @@
  * @license MIT
  */
 
-import { ILinkifierEvent, ITerminal, ILinkifierAccessor } from '../Types';
-import { IRenderDimensions } from './Types';
+import { ILinkifierEvent, ILinkifierAccessor } from '../../../Types';
+import { IRenderDimensions, IColorSet, Terminal } from 'xterm';
 import { BaseRenderLayer } from './BaseRenderLayer';
-import { INVERTED_DEFAULT_COLOR } from './atlas/Types';
-import { is256Color } from './atlas/CharAtlasUtils';
-import { IColorSet } from 'ui/Types';
+import { INVERTED_DEFAULT_COLOR } from '../atlas/Types';
+import { is256Color } from '../atlas/CharAtlasUtils';
 
 export class LinkRenderLayer extends BaseRenderLayer {
   private _state: ILinkifierEvent = null;
@@ -20,13 +19,13 @@ export class LinkRenderLayer extends BaseRenderLayer {
     terminal.linkifier.onLinkLeave(e => this._onLinkLeave(e));
   }
 
-  public resize(terminal: ITerminal, dim: IRenderDimensions): void {
+  public resize(terminal: Terminal, dim: IRenderDimensions): void {
     super.resize(terminal, dim);
     // Resizing the canvas discards the contents of the canvas so clear state
     this._state = null;
   }
 
-  public reset(terminal: ITerminal): void {
+  public reset(terminal: Terminal): void {
     this._clearCurrentLink();
   }
 

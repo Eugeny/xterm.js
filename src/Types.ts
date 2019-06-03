@@ -269,6 +269,7 @@ export interface IPublicTerminal extends IDisposable, IEventEmitter {
   writeUtf8(data: Uint8Array): void;
   refresh(start: number, end: number): void;
   reset(): void;
+  setRenderer(renderer: any): void;
 }
 
 export interface IBufferAccessor {
@@ -357,6 +358,7 @@ export interface IBufferSet {
 
 export interface ISelectionManager {
   selectionText: string;
+  hasSelection: boolean;
   selectionStart: [number, number];
   selectionEnd: [number, number];
 
