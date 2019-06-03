@@ -1,5 +1,5 @@
 {
-  "name": "xterm",
+  "name": "@terminus-term/xterm",
   "description": "Full xterm terminal, in your browser",
   "version": "3.14.0",
   "main": "lib/xterm.js",
