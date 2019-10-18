@@ -176,9 +176,16 @@ export class WebglCharAtlas implements IDisposable {
     return this._config.colors.background;
   }
 
+  private _rgbaToCss(color: number): string {
+    return `rgba(${(((color & 0xFF000000) >> 24) + 256) % 256}, ${(color & 0xFF0000) >> 16}, ${(color & 0xFF00) >> 8}, ${(color & 0xFF) / 255})`
+  }
+
   private _getForegroundColor(fg: number): IColor {
     if (fg === INVERTED_DEFAULT_COLOR) {
-      return this._config.colors.background;
+      return {
+        rgba: this._config.colors.background.rgba | 0xFF,
+        css: this._rgbaToCss(this._config.colors.background.rgba | 0xFF),
+      };
     } else if (is256Color(fg)) {
       return this._getColorFromAnsiIndex(fg);
     }
@@ -241,11 +248,13 @@ export class WebglCharAtlas implements IDisposable {
     // }
 
     // Clear out the background color and determine if the glyph is empty.
-    const isEmpty = clearColor(imageData, backgroundColor);
+    if (backgroundColor.rgba & 0xff) {
+      const isEmpty = clearColor(imageData, backgroundColor);
 
-    // Handle empty glyphs
-    if (isEmpty) {
-      return NULL_RASTERIZED_GLYPH;
+      // Handle empty glyphs
+      if (isEmpty) {
+        return NULL_RASTERIZED_GLYPH;
+      }
     }
 
     const rasterizedGlyph = this._findGlyphBoundingBox(imageData, this._workBoundingBox);
